@@ -1,0 +1,2 @@
+# HatenaBlogCode README
+

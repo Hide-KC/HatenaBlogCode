@@ -1,0 +1,78 @@
+{
+	"name": "hatena_blog_code",
+	"displayName": "HatenaBlogCode",
+	"description": "This extension supports the operation of HatenaBlog.",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.30.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.postBlog",
+		"onCommand:extension.getBlog",
+		"onCommand:extension.init",
+		"onCommand:extension.startOAuth"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.postBlog",
+				"title": "Post Blog"
+			},
+			{
+				"command": "extension.getBlog",
+				"title": "Get Blog"
+			},
+			{
+				"command": "extension.init",
+				"title": "Create Template"
+			},
+			{
+				"command": "extension.startOAuth",
+				"title": "Start Authorize"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "UserPreferences",
+			"properties": {
+				"UserPreferences.id": {
+					"type": "string",
+					"default": "",
+					"description": "Your Hatena ID."
+				},
+				"UserPreferences.password": {
+					"type": "string",
+					"default": "",
+					"description": "Your Hatena Password."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"@types/mocha": "^2.2.42",
+		"@types/node": "^8.10.25",
+		"oauth": "^0.9.15",
+		"request": "^2.88.0",
+		"tslint": "^5.8.0",
+		"typescript": "^3.1.4",
+		"vscode": "^1.1.25"
+	},
+	"dependencies": {
+		"@types/oauth": "^0.9.1",
+		"@types/request": "^2.48.1",
+		"@types/request-promise": "^4.1.42",
+		"request-promise": "^4.2.2",
+		"xml-js": "^1.6.9"
+	}
+}

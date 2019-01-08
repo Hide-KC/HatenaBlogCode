@@ -1,0 +1,9 @@
+out
+node_modules
+Token
+Htmls
+.vscode-test/
+*.vsix
+
+src/util/APIValues.ts
+AuthData
