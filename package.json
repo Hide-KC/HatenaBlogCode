@@ -11,9 +11,11 @@
 	],
 	"activationEvents": [
 		"onCommand:extension.postBlog",
-		"onCommand:extension.getBlog",
+		"onCommand:extension.getArticle",
 		"onCommand:extension.init",
-		"onCommand:extension.startOAuth"
+		"onCommand:extension.startOAuth",
+		"onCommand:extension.getServiceXml",
+		"onCommand:extension.getCollection"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -23,8 +25,8 @@
 				"title": "Post Blog"
 			},
 			{
-				"command": "extension.getBlog",
-				"title": "Get Blog"
+				"command": "extension.getMember",
+				"title": "Get Article"
 			},
 			{
 				"command": "extension.init",
@@ -33,6 +35,14 @@
 			{
 				"command": "extension.startOAuth",
 				"title": "Start Authorize"
+			},
+			{
+				"command": "extension.getServiceXml",
+				"title": "Get Service Xml"
+			},
+			{
+				"command": "extension.getCollection",
+				"title": "Get Collection"
 			}
 		],
 		"configuration": {
@@ -41,18 +51,23 @@
 			"properties": {
 				"UserPreferences.id": {
 					"type": "string",
-					"default": "",
 					"description": "Your Hatena ID."
 				},
 				"UserPreferences.password": {
 					"type": "string",
-					"default": "",
 					"description": "Your Hatena Password."
 				},
 				"UserPreferences.domain": {
 					"type": "string",
-					"default": "",
 					"description": "Your Hatena Blog domain. (eg. hoge.hatenablog.com)"
+				},
+				"UserPreferences.token": {
+					"type": "string",
+					"description": "Your Access Token. Don't edit or publish this value."
+				},
+				"UserPreferences.secret": {
+					"type": "string",
+					"description": "Your Access Token Secret. Don't edit or publish this value."
 				}
 			}
 		}

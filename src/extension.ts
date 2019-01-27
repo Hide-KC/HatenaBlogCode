@@ -3,7 +3,6 @@
 import * as vscode from 'vscode';
 import * as HatenaBlogUtil from './util/HatenaBlogUtil';
 import * as Initialize from './util/Initialize';
-import { isNumber } from 'util';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -19,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposables = [];
+	const disposables = [];
 
 	//テンプレートフォルダの生成
 	const init = () => {
@@ -34,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 	disposables.push(vscode.commands.registerCommand('extension.startOAuth', startOauth));
 
 	//Get Blog
-	const getBlog = () => {
+	const getMember = () => {
 		const inputBoxOptions: vscode.InputBoxOptions = {
 			prompt: "Input Hatena Blog ID.",
 			placeHolder: "eg. epoch"
@@ -46,7 +45,19 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	};
-	disposables.push(vscode.commands.registerCommand('extension.getBlog', getBlog));
+	disposables.push(vscode.commands.registerCommand('extension.getBlog', getMember));
+
+	//Get Collection
+	const getCollection = async () => {
+		await hatena.getCollection();
+	};
+	disposables.push(vscode.commands.registerCommand('extension.getCollection', getCollection));
+
+	//Get Service Xml
+	const getServiceXml = async () => {
+		await hatena.getServiceXml();
+	};
+	disposables.push(vscode.commands.registerCommand('extension.getServiceXml', getServiceXml));
 
 	context.subscriptions.concat(disposables);
 }

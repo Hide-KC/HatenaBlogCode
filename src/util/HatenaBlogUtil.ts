@@ -7,7 +7,7 @@ import * as xmlJS from 'xml-js';
 
 export class HatenaBlogUtil {
     private user: {[s: string]: string | undefined};
-    private accessToken: {[s: string]: string | null} = {'token': null, 'secret': null};
+    public accessToken: {[s: string]: string | undefined} = {'token': undefined, 'secret': undefined};
     private oauth = new OAuth.OAuth(
         api.TMP_CREDENTIAL_REQUEST_URL,
         api.USER_TOKEN_URL,
@@ -28,11 +28,26 @@ export class HatenaBlogUtil {
 
         const domain = prefs.get<string | undefined>('domain');
         this.atomUri = `https://blog.hatena.ne.jp/${id}/${domain}/atom`;
-        console.log(this.atomUri);
+
+        const token = prefs.get<string>('token');
+        const secret = prefs.get<string>('secret');
+        this.accessToken.token = token;
+        this.accessToken.secret = secret;
+        console.log(this.accessToken);
     }
 
-    startOAuth = async () => {
-        if (this.user.name === undefined || this.user.password === undefined) {throw new Error('Please confirm UserPreferences');}
+    async startOAuth() {
+        const prefs = vscode.workspace.getConfiguration('UserPreferences');
+        const token = prefs.get<string>('token');
+        const secret = prefs.get<string>('secret');
+        if ((token !== "" && secret !== "") && (token !== undefined && secret !== undefined)) {
+            this.accessToken.token = token;
+            this.accessToken.secret = secret;
+            console.log(this.accessToken);
+            return;
+        } else if (this.user.name === undefined || this.user.password === undefined) {
+            throw new Error('Please confirm UserPreferences.');
+        }
 
         this.oauth.getOAuthRequestToken({
             'scope': 'read_public,write_public,read_private,write_private'
@@ -59,9 +74,12 @@ export class HatenaBlogUtil {
                             console.log(">>>Congraturations!!<<<");
                             console.log('AccessToken: ' + accessToken);
                             console.log('AccessTokenSecret: ' + accessTokenSecret);
-                            console.log('ParsedQueryString: ' + parsedQueryString);
                             this.accessToken.token = accessToken;
                             this.accessToken.secret = accessTokenSecret;
+
+                            const prefs = vscode.workspace.getConfiguration('UserPreferences');
+                            prefs.update('token', accessToken, vscode.ConfigurationTarget.Global);
+                            prefs.update('secret', accessTokenSecret, vscode.ConfigurationTarget.Global);
                         }
                     });
                 })
@@ -72,7 +90,7 @@ export class HatenaBlogUtil {
         });
     }
 
-    private getRK = async () => {
+    private async getRK() {
         //ヘッダーを定義
         const headers = {'Content-Type':'application/json'};
 
@@ -102,7 +120,7 @@ export class HatenaBlogUtil {
         });
     }
 
-    private getRKM = async (requestToken: string, rk: string) => {
+    private async getRKM(requestToken: string, rk: string) {
         const reqTokenOptions = {
             url: api.RES_OWNER_AUTH_URL,
             qs: { oauth_token: requestToken },
@@ -123,7 +141,7 @@ export class HatenaBlogUtil {
         });
     }
 
-    private getVerifier = async (requestToken: string, rk: string, rkm: string) => {
+    private async getVerifier(requestToken: string, rk: string, rkm: string) {
         const verifierOptions = {
             url: api.RES_OWNER_AUTH_URL,
             qs: { oauth_token: requestToken, rkm: rkm },
@@ -144,19 +162,63 @@ export class HatenaBlogUtil {
         });
     }
 
-    getCollection = () => {
-        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    getCollection() {
+        if (!this.existAccessToken) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        const collectionUri = this.atomUri + '/entry';
+        this.oauthGET(collectionUri, (err, result, response) => {
+            console.log(err);
+            console.log(result);
+        });
     }
 
-    getMember = (entryId: string) => {
-        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    getMember(entryId: string) {
+        if (!this.existAccessToken) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        const memberUri = this.atomUri + `/entry/$${entryId}`;
+        this.oauthGET(memberUri, (err, result, response) => {
+            console.log(err);
+            console.log(result);
+        });
     }
 
-    getServiceXml = () => {
-        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    getServiceXml() {
+        if (!this.existAccessToken()) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        this.oauthGET(this.atomUri, (err, result, response) => {
+            console.log(err);
+            console.log(result);
+        });
     }
 
-    getCategories = () => {
-        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    getCategories() {
+        if (!this.existAccessToken()) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        const categoriesUri = this.atomUri + '/category';
+        this.oauthGET(categoriesUri, (err, result, response) => {
+            console.log(err);
+            console.log(result);
+        });
+    }
+
+    existAccessToken() {
+        //undefined または 空文字の場合 false
+        return ((this.accessToken.token !== undefined && this.accessToken.secret !== undefined) || (this.accessToken.token !== "" && this.accessToken.secret !== ""));
+    }
+
+    private oauthGET(uri: string, callback: OAuth.dataCallback) {
+        this.oauth.get(uri, this.accessToken.token as string, this.accessToken.secret as string, callback);
     }
 }
