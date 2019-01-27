@@ -5,34 +5,36 @@ import * as rp from 'request-promise';
 import { isString } from 'util';
 import * as xmlJS from 'xml-js';
 
-// const account = {'name': 'kcpoipoi', 'password': 'finl21347'};
-
 export class HatenaBlogUtil {
     private user: {[s: string]: string | undefined};
-    private accessToken: string | null = null;
-    private accessTokenSecret: string | null = null;
+    private accessToken: {[s: string]: string | null} = {'token': null, 'secret': null};
+    private oauth = new OAuth.OAuth(
+        api.TMP_CREDENTIAL_REQUEST_URL,
+        api.USER_TOKEN_URL,
+        api.COMSUMER_KEY,
+        api.COMSUMER_SECRET,
+        '1.0',
+        'oob',
+        'HMAC-SHA1'
+    );
 
+    private atomUri: string;
+    
     constructor() {
         const prefs = vscode.workspace.getConfiguration('UserPreferences');
         const id = prefs.get<string | undefined>('id');
         const password = prefs.get<string | undefined>('password');
         this.user = {"name": id, 'password': password};
+
+        const domain = prefs.get<string | undefined>('domain');
+        this.atomUri = `https://blog.hatena.ne.jp/${id}/${domain}/atom`;
+        console.log(this.atomUri);
     }
 
     startOAuth = async () => {
         if (this.user.name === undefined || this.user.password === undefined) {throw new Error('Please confirm UserPreferences');}
 
-        const oauth = new OAuth.OAuth(
-            api.TMP_CREDENTIAL_REQUEST_URL,
-            api.USER_TOKEN_URL,
-            api.COMSUMER_KEY,
-            api.COMSUMER_SECRET,
-            '1.0',
-            'oob',
-            'HMAC-SHA1'
-        );
-
-        oauth.getOAuthRequestToken({
+        this.oauth.getOAuthRequestToken({
             'scope': 'read_public,write_public,read_private,write_private'
         }, async (err, request_token, request_token_secret, results) => {
             if (err !== null){
@@ -50,7 +52,7 @@ export class HatenaBlogUtil {
                 })
                 .then((verifier) => {
                     if (!isString(verifier)) {throw new Error();}
-                    oauth.getOAuthAccessToken(request_token, request_token_secret, verifier, (err, accessToken, accessTokenSecret, parsedQueryString) => {
+                    this.oauth.getOAuthAccessToken(request_token, request_token_secret, verifier, (err, accessToken, accessTokenSecret, parsedQueryString) => {
                         if (err !== null){
                             console.log(err);
                         } else {
@@ -58,6 +60,8 @@ export class HatenaBlogUtil {
                             console.log('AccessToken: ' + accessToken);
                             console.log('AccessTokenSecret: ' + accessTokenSecret);
                             console.log('ParsedQueryString: ' + parsedQueryString);
+                            this.accessToken.token = accessToken;
+                            this.accessToken.secret = accessTokenSecret;
                         }
                     });
                 })
@@ -140,11 +144,19 @@ export class HatenaBlogUtil {
         });
     }
 
-    postBlog = () => {
-
+    getCollection = () => {
+        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
     }
 
-    getBlog = (blogId: any) => {
+    getMember = (entryId: string) => {
+        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    }
 
+    getServiceXml = () => {
+        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
+    }
+
+    getCategories = () => {
+        if (this.accessToken.token === null || this.accessToken.secret === null){return;}
     }
 }

@@ -35,17 +35,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 	//Get Blog
 	const getBlog = () => {
-		vscode.window.showInputBox().then(async (value) => {
-			await hatena.getBlog(value);
+		const inputBoxOptions: vscode.InputBoxOptions = {
+			prompt: "Input Hatena Blog ID.",
+			placeHolder: "eg. epoch"
+		};
+		
+		vscode.window.showInputBox(inputBoxOptions).then(async (value) => {
+			if (value !== undefined){
+				await hatena.getMember(value);
+			}
 		});
 	};
 	disposables.push(vscode.commands.registerCommand('extension.getBlog', getBlog));
-
-	//Post Blog
-	const postBlog = async () => {
-		await hatena.postBlog();
-	};
-	disposables.push(vscode.commands.registerCommand('extension.postBlog', postBlog));
 
 	context.subscriptions.concat(disposables);
 }
