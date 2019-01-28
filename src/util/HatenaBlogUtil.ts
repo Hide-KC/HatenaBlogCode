@@ -36,11 +36,14 @@ export class HatenaBlogUtil {
         console.log(this.accessToken);
     }
 
+    /**
+     * Start OAuth v1.0
+     */
     async startOAuth() {
         const prefs = vscode.workspace.getConfiguration('UserPreferences');
         const token = prefs.get<string>('token');
         const secret = prefs.get<string>('secret');
-        if ((token !== "" && secret !== "") && (token !== undefined && secret !== undefined)) {
+        if (this.existAccessToken) {
             this.accessToken.token = token;
             this.accessToken.secret = secret;
             console.log(this.accessToken);
@@ -90,6 +93,9 @@ export class HatenaBlogUtil {
         });
     }
 
+    /**
+     * Get RK (need for login).
+     */
     private async getRK() {
         //ヘッダーを定義
         const headers = {'Content-Type':'application/json'};
@@ -120,6 +126,11 @@ export class HatenaBlogUtil {
         });
     }
 
+    /**
+     * Get RKM (need for parmission). 
+     * @param requestToken 
+     * @param rk 
+     */
     private async getRKM(requestToken: string, rk: string) {
         const reqTokenOptions = {
             url: api.RES_OWNER_AUTH_URL,
@@ -141,6 +152,12 @@ export class HatenaBlogUtil {
         });
     }
 
+    /**
+     * Get oauth verifier.
+     * @param requestToken
+     * @param rk
+     * @param rkm
+     */
     private async getVerifier(requestToken: string, rk: string, rkm: string) {
         const verifierOptions = {
             url: api.RES_OWNER_AUTH_URL,
@@ -162,7 +179,10 @@ export class HatenaBlogUtil {
         });
     }
 
-    getCollection() {
+    /**
+     * Get collection of Hatena blog.
+     */
+    private getCollection() {
         if (!this.existAccessToken) {
             vscode.window.showErrorMessage("Not stored AccessToken!");
             return;
@@ -175,6 +195,10 @@ export class HatenaBlogUtil {
         });
     }
 
+    /**
+     * Get an article in Hatena blog.
+     * @param entryId 
+     */
     getMember(entryId: string) {
         if (!this.existAccessToken) {
             vscode.window.showErrorMessage("Not stored AccessToken!");
@@ -188,6 +212,9 @@ export class HatenaBlogUtil {
         });
     }
 
+    /**
+     * Get Hatena service xml.
+     */
     getServiceXml() {
         if (!this.existAccessToken()) {
             vscode.window.showErrorMessage("Not stored AccessToken!");
@@ -200,7 +227,10 @@ export class HatenaBlogUtil {
         });
     }
 
-    getCategories() {
+    /**
+     * Get Hatena category.
+     */
+    getCategory() {
         if (!this.existAccessToken()) {
             vscode.window.showErrorMessage("Not stored AccessToken!");
             return;
@@ -209,15 +239,33 @@ export class HatenaBlogUtil {
         const categoriesUri = this.atomUri + '/category';
         this.oauthGET(categoriesUri, (err, result, response) => {
             console.log(err);
-            console.log(result);
+            console.log(result as string);
+            const regExp = new RegExp('category term=\"(.*)\"', "g");
+            const _categoryArray = (result as string).match(regExp);
+            if (_categoryArray !== null) {
+                _categoryArray.forEach((value, index, array) => {
+                    const _category = value.match('category term=\"(.*)\"');
+                    if (_category !== null){
+                        console.log(_category[1]);
+                    }
+                });
+            }
         });
     }
 
-    existAccessToken() {
+    /**
+     * If UserPreferences has AccessToken & AccessTokenSecret, return true.
+     */
+    private existAccessToken() {
         //undefined または 空文字の場合 false
         return ((this.accessToken.token !== undefined && this.accessToken.secret !== undefined) || (this.accessToken.token !== "" && this.accessToken.secret !== ""));
     }
 
+    /**
+     * Wrapper of oauth.get method.
+     * @param uri 
+     * @param callback 
+     */
     private oauthGET(uri: string, callback: OAuth.dataCallback) {
         this.oauth.get(uri, this.accessToken.token as string, this.accessToken.secret as string, callback);
     }

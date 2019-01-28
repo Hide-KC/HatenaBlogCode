@@ -15,7 +15,8 @@
 		"onCommand:extension.init",
 		"onCommand:extension.startOAuth",
 		"onCommand:extension.getServiceXml",
-		"onCommand:extension.getCollection"
+		"onCommand:extension.getCollection",
+		"onCommand:extension.getCategory"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -43,6 +44,10 @@
 			{
 				"command": "extension.getCollection",
 				"title": "Get Collection"
+			},
+			{
+				"command": "extension.getCategory",
+				"title": "Get Category"
 			}
 		],
 		"configuration": {

@@ -32,11 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	disposables.push(vscode.commands.registerCommand('extension.startOAuth', startOauth));
 
-	//Get Blog
 	const getMember = () => {
 		const inputBoxOptions: vscode.InputBoxOptions = {
 			prompt: "Input Hatena Blog ID.",
-			placeHolder: "eg. epoch"
+			placeHolder: "UNIX epoch"
 		};
 		
 		vscode.window.showInputBox(inputBoxOptions).then(async (value) => {
@@ -47,13 +46,11 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	disposables.push(vscode.commands.registerCommand('extension.getBlog', getMember));
 
-	//Get Collection
-	const getCollection = async () => {
-		await hatena.getCollection();
+	const getCategory = async () => {
+		await hatena.getCategory();
 	};
-	disposables.push(vscode.commands.registerCommand('extension.getCollection', getCollection));
+	disposables.push(vscode.commands.registerCommand('extension.getCategory', getCategory));
 
-	//Get Service Xml
 	const getServiceXml = async () => {
 		await hatena.getServiceXml();
 	};
