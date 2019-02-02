@@ -1,7 +1,6 @@
 out
 node_modules
 Token
-Htmls
 .vscode-test/
 *.vsix
 

@@ -3,7 +3,6 @@ import * as OAuth from 'oauth';
 import * as vscode from 'vscode';
 import * as rp from 'request-promise';
 import { isString } from 'util';
-import * as xmlJS from 'xml-js';
 
 export class HatenaBlogUtil {
     private user: {[s: string]: string | undefined};
@@ -236,11 +235,12 @@ export class HatenaBlogUtil {
             return;
         }
 
-        const categoriesUri = this.atomUri + '/category';
-        this.oauthGET(categoriesUri, (err, result, response) => {
+        const categoryUri = this.atomUri + '/category';
+        this.oauthGET(categoryUri, (err, result, response) => {
             console.log(err);
-            console.log(result as string);
-            const regExp = new RegExp('category term=\"(.*)\"', "g");
+            console.log(result);
+            
+            const regExp = new RegExp('category term=\".*\"', "g");
             const _categoryArray = (result as string).match(regExp);
             if (_categoryArray !== null) {
                 _categoryArray.forEach((value, index, array) => {
@@ -267,6 +267,14 @@ export class HatenaBlogUtil {
      * @param callback 
      */
     private oauthGET(uri: string, callback: OAuth.dataCallback) {
-        this.oauth.get(uri, this.accessToken.token as string, this.accessToken.secret as string, callback);
+        if (this.existAccessToken){
+            this.oauth.get(uri, this.accessToken.token as string, this.accessToken.secret as string, callback);
+        }
+    }
+
+    private oauthPOST(uri: string, content: any, contentType: string, callback: OAuth.dataCallback) {
+        if (this.existAccessToken){
+            this.oauth.post(uri, this.accessToken.token as string, this.accessToken.secret as string, content, contentType, callback);
+        }
     }
 }

@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	//テンプレートフォルダの生成
 	const init = () => {
-		initialize.createDirectory();
+		initialize.createWorkingDirectory();
 	};
 	disposables.push(vscode.commands.registerCommand('extension.init', init));
 
