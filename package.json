@@ -16,7 +16,8 @@
 		"onCommand:extension.startOAuth",
 		"onCommand:extension.getServiceXml",
 		"onCommand:extension.getCollection",
-		"onCommand:extension.getCategory"
+		"onCommand:extension.getCategory",
+		"onCommand:extension.getMember"
 	],
 	"main": "./out/extension.js",
 	"contributes": {

@@ -1,15 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import * as HatenaBlogUtil from './util/HatenaBlogUtil';
-import * as Initialize from './util/Initialize';
+import Authorizer from './util/Authorizer';
+import Initialize from './util/Initialize';
+import HatenaBlogUtil from './util/HatenaBlogUtil';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	const hatena = new HatenaBlogUtil.HatenaBlogUtil();
-	const initialize = new Initialize.Initialize();
+	const hatena = new HatenaBlogUtil();
+	const initialize = new Initialize();
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -28,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	//Start Authorize
 	const startOauth = async () => {
-		await hatena.startOAuth();
+		await Authorizer.getInstance().startOAuth();
 	};
 	disposables.push(vscode.commands.registerCommand('extension.startOAuth', startOauth));
 
@@ -44,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	};
-	disposables.push(vscode.commands.registerCommand('extension.getBlog', getMember));
+	disposables.push(vscode.commands.registerCommand('extension.getMember', getMember));
 
 	const getCategory = async () => {
 		await hatena.getCategory();
@@ -55,6 +56,12 @@ export function activate(context: vscode.ExtensionContext) {
 		await hatena.getServiceXml();
 	};
 	disposables.push(vscode.commands.registerCommand('extension.getServiceXml', getServiceXml));
+
+	const getCollection = async () => {
+		await hatena.getCollection();
+	};
+	disposables.push(vscode.commands.registerCommand('extension.getCollection', getCollection));
+
 
 	context.subscriptions.concat(disposables);
 }
