@@ -10,25 +10,24 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.postBlog",
-		"onCommand:extension.getArticle",
+		"onCommand:extension.getMember",
+		"onCommand:extension.postMember",
 		"onCommand:extension.init",
 		"onCommand:extension.startOAuth",
 		"onCommand:extension.getServiceXml",
 		"onCommand:extension.getCollection",
-		"onCommand:extension.getCategory",
-		"onCommand:extension.getMember"
+		"onCommand:extension.getCategory"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.postBlog",
-				"title": "Post Blog"
-			},
-			{
 				"command": "extension.getMember",
 				"title": "Get Article"
+			},
+			{
+				"command": "extension.postMember",
+				"title": "Post Article"
 			},
 			{
 				"command": "extension.init",

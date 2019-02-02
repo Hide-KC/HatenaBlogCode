@@ -44,7 +44,7 @@ export default class Initialize {
         
                                 this.mkConfig(root, {
                                     'title': 'Article Title',
-                                    'categories': ['hoge', 'bar']
+                                    'category': ['hoge', 'bar']
                                 });
                             }
                         });
@@ -56,6 +56,7 @@ export default class Initialize {
                 }).then(root => {
                     if (root !== undefined){
                         console.log('Working directory: ' + root);
+                        vscode.workspace.updateWorkspaceFolders(0, 1, {uri: vscode.Uri.parse(root)});
                         vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.parse(root));
                     }
                 }, err => {

@@ -5,7 +5,7 @@ import * as rp from 'request-promise';
 import { isString } from 'util';
 
 export default class Authorizer{
-    private static me: Authorizer;
+    private static instance: Authorizer;
     private user: {[s: string]: string | undefined};
     private accessToken: {[s: string]: string | undefined} = {'token': undefined, 'secret': undefined};
     private oauth = new OAuth.OAuth(
@@ -32,10 +32,10 @@ export default class Authorizer{
     }
 
     static getInstance() {
-        if (!this.me){
-            this.me = new Authorizer();
+        if (!this.instance){
+            this.instance = new Authorizer();
         }
-        return this.me;
+        return this.instance;
     }
 
     getOAuth() {

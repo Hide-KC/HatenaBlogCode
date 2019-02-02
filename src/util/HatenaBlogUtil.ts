@@ -1,6 +1,7 @@
 import * as OAuth from 'oauth';
 import * as vscode from 'vscode';
 import Authorizer from './Authorizer';
+import Converter from '../Converter';
 
 export default class HatenaBlogUtil {
     private atomUri: string;
@@ -89,6 +90,27 @@ export default class HatenaBlogUtil {
                 });
             }
         });
+    }
+
+    async postMember() {
+        if (!this.authorizer.existAccessToken()) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        const folders = vscode.workspace.workspaceFolders;
+        if (folders !== undefined){
+            //Macはfolders[0].uri.path
+            const root = folders[0].uri.fsPath; 
+            console.log(root);
+
+            const converter = Converter.getInstance();
+            // converter.createPostData(root);
+            this.oauthPOST(this.atomUri + "/entry", converter.createPostData(root), (err, result, responce) => {
+                console.log(err);
+                console.log(result);
+            });
+        }
     }
 
     /**

@@ -62,6 +62,11 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	disposables.push(vscode.commands.registerCommand('extension.getCollection', getCollection));
 
+	const postMember = async () => {
+		await hatena.postMember();
+	};
+	disposables.push(vscode.commands.registerCommand('extension.postMember', postMember));
+
 
 	context.subscriptions.concat(disposables);
 }
