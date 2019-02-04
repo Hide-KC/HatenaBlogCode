@@ -12,7 +12,7 @@ export default class Initialize {
         category: ['hoge', 'bar']
     };
 
-    createWorkingDirectory(memberMap?: {[key: string]: string[]}) {
+    createWorkingDirectory(memberMap?: {[key: string]: string | string[]}) {
 		const folderOptions: vscode.OpenDialogOptions = {
 			canSelectMany: false,
 			canSelectFiles: false,
@@ -45,11 +45,19 @@ export default class Initialize {
                                     }
                                 });
         
-                                memberMap? this.mkContent(root, memberMap.content[0]) : this.mkContent(root, this.initContent);
-                                memberMap? this.mkConfig(root, {title: memberMap.title[0], category: memberMap.category}) : this.mkConfig(root, this.initConfig);
+                                const prefs = vscode.workspace.getConfiguration('UserPreferences');
+                                if (memberMap !== undefined){
+                                    this.mkContent(root, memberMap.content);
+                                    this.mkConfig(root, {title: memberMap.title, category: memberMap.category});
+                                    prefs.update("memberMap", memberMap, vscode.ConfigurationTarget.Global);
+                                } else {
+                                    this.mkContent(root, this.initContent);
+                                    this.mkConfig(root, this.initConfig);
+                                    //Preferenceはundifined代入不可っぽい（nullになる）
+                                    prefs.update("memberMap", null, vscode.ConfigurationTarget.Global);
+                                }
                             }
                         });
-
                         return root;
                     }
                 }, err => {

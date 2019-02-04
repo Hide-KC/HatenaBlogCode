@@ -36,7 +36,7 @@ export default class Converter{
         return data;
     }
 
-    decodeMember(memberXml: string): {[key: string]: string[]} {
+    decodeMember(memberXml: string): {[key: string]: string | string[]} {
         const articleId = () => {
             const _id = memberXml.match('<link rel=\"edit\" href=\".*/entry/(.*)\"/>');
             return _id? _id[1] : "";
@@ -69,20 +69,17 @@ export default class Converter{
 
             return categoryArr;
         };
-        
-        const articleIdArr: string[] = [articleId()];
-        const titleArr: string[] = [title()];
-        const contentArr: string[] = [content()];
-        const categoryArr: string[] = category();
 
-        const result: {[key:string]: string[]} = {
-            articleId: articleIdArr,
-            title: titleArr,
-            content: contentArr,
-            category: categoryArr
+        const memberMap: {[key:string]: string | string[]} = {
+            articleId: articleId(),
+            title: title(),
+            content: content(),
+            category: category()
         };
 
-        return result;
+        console.log(memberMap);
+
+        return memberMap;
     }
 
     private createCategoryTerms(config: any) {

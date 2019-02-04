@@ -67,9 +67,24 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	disposables.push(vscode.commands.registerCommand('extension.postMember', postMember));
 
-
+	const putMember = async () => {
+		const prefs = vscode.workspace.getConfiguration('UserPreferences');
+		const memberMap = prefs.get<{[key: string]: string | string[]} | null>('memberMap');
+		
+		console.log(memberMap);
+		if (memberMap !== null && memberMap !== undefined){
+			await hatena.putMember(memberMap.articleId as string);
+		} else {
+			vscode.window.showErrorMessage('Not exist Article Id.');
+		}
+	};
+	disposables.push(vscode.commands.registerCommand('extension.putMember', putMember));
 	context.subscriptions.concat(disposables);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+	console.log("Extension deactivated.");
+	const prefs = vscode.workspace.getConfiguration('UserPreferences');
+	prefs.update("memberMap", null, vscode.ConfigurationTarget.Global);
+}

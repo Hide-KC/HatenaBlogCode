@@ -51,8 +51,6 @@ export default class HatenaBlogUtil {
                 throw new Error("getMember Error");
             } else if (isString(result)){
                 const memberMap = Converter.getInstance().decodeMember(result);
-                console.log(memberMap);
-                
                 const initialize = new Initialize();
                 initialize.createWorkingDirectory(memberMap);
             }
@@ -115,6 +113,26 @@ export default class HatenaBlogUtil {
 
             const converter = Converter.getInstance();
             this.oauthPOST(this.atomUri + "/entry", converter.createPostData(root), (err, result, responce) => {
+                console.log(err);
+                console.log(result);
+            });
+        }
+    }
+
+    putMember(entryId: string) {
+        if (!this.authorizer.existAccessToken()) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        const folders = vscode.workspace.workspaceFolders;
+        if (folders !== undefined){
+            //Macはfolders[0].uri.path
+            const root = folders[0].uri.fsPath; 
+            console.log(root);
+
+            const converter = Converter.getInstance();
+            this.oauthPUT(this.atomUri + "/entry/" + entryId, converter.createPostData(root), (err, result, responce) => {
                 console.log(err);
                 console.log(result);
             });

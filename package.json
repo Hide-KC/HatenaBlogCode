@@ -16,7 +16,8 @@
 		"onCommand:extension.startOAuth",
 		"onCommand:extension.getServiceXml",
 		"onCommand:extension.getCollection",
-		"onCommand:extension.getCategory"
+		"onCommand:extension.getCategory",
+		"onCommand:extension.putMember"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -48,6 +49,10 @@
 			{
 				"command": "extension.getCategory",
 				"title": "Get Category"
+			},
+			{
+				"command": "extension.putMember",
+				"title": "Update Article"
 			}
 		],
 		"configuration": {
@@ -73,6 +78,10 @@
 				"UserPreferences.secret": {
 					"type": "string",
 					"description": "Your Access Token Secret. Don't edit or publish this value."
+				},
+				"UserPreferences.memberMap": {
+					"type": "object",
+					"description": "Don't edit this value."
 				}
 			}
 		}
