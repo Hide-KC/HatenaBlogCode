@@ -7,7 +7,12 @@ export default class Initialize {
         'このファイルに、はてな Markdown で本文を記述します。'
     ;
 
-    createWorkingDirectory() {
+    private initConfig = {
+        title: 'Article Title',
+        category: ['hoge', 'bar']
+    };
+
+    createWorkingDirectory(memberMap?: {[key: string]: string[]}) {
 		const folderOptions: vscode.OpenDialogOptions = {
 			canSelectMany: false,
 			canSelectFiles: false,
@@ -20,7 +25,7 @@ export default class Initialize {
         
         const inputBoxOptions: vscode.InputBoxOptions = {
 			prompt: "Input working directory name.",
-			placeHolder: "eg. Article title"
+			placeHolder: "Article title etc..."
         };
         
         vscode.window.showOpenDialog(folderOptions).then(folderUri => {
@@ -40,12 +45,8 @@ export default class Initialize {
                                     }
                                 });
         
-                                this.mkContent(root, this.initContent);
-        
-                                this.mkConfig(root, {
-                                    'title': 'Article Title',
-                                    'category': ['hoge', 'bar']
-                                });
+                                memberMap? this.mkContent(root, memberMap.content[0]) : this.mkContent(root, this.initContent);
+                                memberMap? this.mkConfig(root, {title: memberMap.title[0], category: memberMap.category}) : this.mkConfig(root, this.initConfig);
                             }
                         });
 
@@ -56,8 +57,7 @@ export default class Initialize {
                 }).then(root => {
                     if (root !== undefined){
                         console.log('Working directory: ' + root);
-                        vscode.workspace.updateWorkspaceFolders(0, 1, {uri: vscode.Uri.parse(root)});
-                        vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.parse(root));
+                        vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.parse(root), false);
                     }
                 }, err => {
                     console.log(err);

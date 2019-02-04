@@ -2,6 +2,8 @@ import * as OAuth from 'oauth';
 import * as vscode from 'vscode';
 import Authorizer from './Authorizer';
 import Converter from '../Converter';
+import { isString } from 'util';
+import Initialize from './Initialize';
 
 export default class HatenaBlogUtil {
     private atomUri: string;
@@ -45,8 +47,15 @@ export default class HatenaBlogUtil {
 
         const memberUri = this.atomUri + `/entry/${entryId}`;
         this.oauthGET(memberUri, (err, result, response) => {
-            console.log(err);
-            console.log(result);
+            if (err !== null){
+                throw new Error("getMember Error");
+            } else if (isString(result)){
+                const memberMap = Converter.getInstance().decodeMember(result);
+                console.log(memberMap);
+                
+                const initialize = new Initialize();
+                initialize.createWorkingDirectory(memberMap);
+            }
         });
     }
 
@@ -92,7 +101,7 @@ export default class HatenaBlogUtil {
         });
     }
 
-    async postMember() {
+    postMember() {
         if (!this.authorizer.existAccessToken()) {
             vscode.window.showErrorMessage("Not stored AccessToken!");
             return;
@@ -105,7 +114,6 @@ export default class HatenaBlogUtil {
             console.log(root);
 
             const converter = Converter.getInstance();
-            // converter.createPostData(root);
             this.oauthPOST(this.atomUri + "/entry", converter.createPostData(root), (err, result, responce) => {
                 console.log(err);
                 console.log(result);
@@ -121,7 +129,8 @@ export default class HatenaBlogUtil {
     private oauthGET(uri: string, callback: OAuth.dataCallback) {
         if (this.authorizer.existAccessToken()){
             const oauth = this.authorizer.getOAuth();
-            oauth.get(uri,
+            oauth.get(
+                uri,
                 this.authorizer.getAccessToken().token as string,
                 this.authorizer.getAccessToken().secret as string,
                 callback
@@ -129,16 +138,60 @@ export default class HatenaBlogUtil {
         }
     }
 
+    /**
+     * Wrapper of oauth.post method.
+     * @param uri 
+     * @param content 
+     * @param callback 
+     */
     private oauthPOST(uri: string, content: any, callback: OAuth.dataCallback) {
         if (this.authorizer.existAccessToken()){
             const oauth = this.authorizer.getOAuth();
-            oauth.post(uri,
+            oauth.post(
+                uri,
                 this.authorizer.getAccessToken().token as string,
                 this.authorizer.getAccessToken().secret as string,
                 content,
                 this.contentType,
                 callback
                 );
+        }
+    }
+
+    /**
+     * Wrapper of oauth.put method.
+     * @param uri 
+     * @param content 
+     * @param callback 
+     */
+    private oauthPUT(uri: string, content: any, callback: OAuth.dataCallback) {
+        if (this.authorizer.existAccessToken()){
+            const oauth = this.authorizer.getOAuth();
+            oauth.put(
+                uri,
+                this.authorizer.getAccessToken().token as string,
+                this.authorizer.getAccessToken().secret as string,
+                content,
+                this.contentType,
+                callback
+            );
+        }
+    }
+
+    /**
+     * Wrapper of oauth.delete method.
+     * @param uri 
+     * @param callback 
+     */
+    private oauthDELETE(uri: string, callback: OAuth.dataCallback) {
+        if (this.authorizer.existAccessToken()){
+            const oauth = this.authorizer.getOAuth();
+            oauth.delete(
+                uri,
+                this.authorizer.getAccessToken().token as string,
+                this.authorizer.getAccessToken().secret as string,
+                callback
+            );
         }
     }
 }
