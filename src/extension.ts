@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
 		
 		console.log(memberMap);
 		if (memberMap !== null && memberMap !== undefined){
-			await hatena.putMember(memberMap.articleId as string);
+			await hatena.putMember(memberMap.id as string);
 		} else {
 			vscode.window.showErrorMessage('Not exist Article Id.');
 		}

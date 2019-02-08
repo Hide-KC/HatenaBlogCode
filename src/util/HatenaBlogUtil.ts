@@ -32,6 +32,12 @@ export default class HatenaBlogUtil {
         this.oauthGET(collectionUri, (err, result, response) => {
             console.log(err);
             console.log(result);
+
+            if (err !== null) {
+                vscode.window.showErrorMessage("Get Collection Error: status " + err.statusCode);
+            } else {
+                vscode.window.showInformationMessage("Operation Succeed!");
+            }
         });
     }
 
@@ -48,9 +54,10 @@ export default class HatenaBlogUtil {
         const memberUri = this.atomUri + `/entry/${entryId}`;
         this.oauthGET(memberUri, (err, result, response) => {
             if (err !== null){
-                throw new Error("getMember Error");
+                vscode.window.showErrorMessage("Get Article Error: status " + err.statusCode);
             } else if (isString(result)){
-                const memberMap = Converter.getInstance().decodeMember(result);
+                vscode.window.showInformationMessage("Operation Succeed!");
+                const memberMap = Converter.getInstance().getMemberMap(result);
                 const initialize = new Initialize();
                 initialize.createWorkingDirectory(memberMap);
             }
@@ -69,6 +76,12 @@ export default class HatenaBlogUtil {
         this.oauthGET(this.atomUri, (err, result, response) => {
             console.log(err);
             console.log(result);
+
+            if (err !== null) {
+                vscode.window.showErrorMessage("Get Service Error: status " + err.statusCode);
+            } else {
+                vscode.window.showInformationMessage("Operation Succeed!");
+            }
         });
     }
 
@@ -85,7 +98,13 @@ export default class HatenaBlogUtil {
         this.oauthGET(categoryUri, (err, result, response) => {
             console.log(err);
             console.log(result);
+
+            if (err !== null) {
+                vscode.window.showErrorMessage("Get Category Error: status " + err.statusCode);
+                return;
+            }
             
+            vscode.window.showInformationMessage("Operation Succeed!");
             const regExp = new RegExp('category term=\".*\"', "g");
             const _categoryArray = (result as string).match(regExp);
             if (_categoryArray !== null) {
@@ -115,6 +134,15 @@ export default class HatenaBlogUtil {
             this.oauthPOST(this.atomUri + "/entry", converter.createPostData(root), (err, result, responce) => {
                 console.log(err);
                 console.log(result);
+
+                if (err !== null){
+                    vscode.window.showErrorMessage("Post Article Error: status " + err.statusCode);
+                } else if (isString(result)){
+                    vscode.window.showInformationMessage("Operation Succeed!");
+                    const memberMap = Converter.getInstance().getMemberMap(result);
+                    const initialize = new Initialize();
+                    initialize.mkConfig(root, memberMap);
+                }
             });
         }
     }
@@ -135,8 +163,32 @@ export default class HatenaBlogUtil {
             this.oauthPUT(this.atomUri + "/entry/" + entryId, converter.createPostData(root), (err, result, responce) => {
                 console.log(err);
                 console.log(result);
+
+                if (err !== null) {
+                    vscode.window.showErrorMessage("Update Article Error: status " + err.statusCode);
+                } else {
+                    vscode.window.showInformationMessage("Operation Succeed!");
+                }
             });
         }
+    }
+
+    deleteMember(entryId: string) {
+        if (!this.authorizer.existAccessToken()) {
+            vscode.window.showErrorMessage("Not stored AccessToken!");
+            return;
+        }
+
+        this.oauthDELETE(this.atomUri + "/entry/" + entryId, (err, result, responce) => {
+            console.log(err);
+            console.log(result);
+
+            if (err !== null) {
+                vscode.window.showErrorMessage("Delete Article Error: status " + err.statusCode);
+            } else {
+                vscode.window.showInformationMessage("Operation Succeed!");
+            }
+        });
     }
 
     /**
@@ -152,7 +204,7 @@ export default class HatenaBlogUtil {
                 this.authorizer.getAccessToken().token as string,
                 this.authorizer.getAccessToken().secret as string,
                 callback
-                );
+            );
         }
     }
 
@@ -172,7 +224,7 @@ export default class HatenaBlogUtil {
                 content,
                 this.contentType,
                 callback
-                );
+            );
         }
     }
 

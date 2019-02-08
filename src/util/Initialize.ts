@@ -7,9 +7,13 @@ export default class Initialize {
         'このファイルに、はてな Markdown で本文を記述します。'
     ;
 
-    private initConfig = {
+    //日付のシリアライズに注意 2013-09-02T11:28:23+09:00
+    //https://qiita.com/think49/items/b314eb874a66e9fe9e19
+    private initConfig: {[key: string]: string | string[]} = {
+        id: "",
         title: 'Article Title',
-        category: ['hoge', 'bar']
+        category: ['hoge', 'bar'],
+        updated: ""
     };
 
     createWorkingDirectory(memberMap?: {[key: string]: string | string[]}) {
@@ -48,7 +52,12 @@ export default class Initialize {
                                 const prefs = vscode.workspace.getConfiguration('UserPreferences');
                                 if (memberMap !== undefined){
                                     this.mkContent(root, memberMap.content);
-                                    this.mkConfig(root, {title: memberMap.title, category: memberMap.category});
+                                    this.mkConfig(root, {
+                                        id: memberMap.id,
+                                        title: memberMap.title,
+                                        category: memberMap.category,
+                                        updated: memberMap.updated
+                                    });
                                     prefs.update("memberMap", memberMap, vscode.ConfigurationTarget.Global);
                                 } else {
                                     this.mkContent(root, this.initContent);
@@ -91,9 +100,16 @@ export default class Initialize {
     /**
      * Create config.json file.
      * @param path 
-     * @param data 
+     * @param memberMap 
      */
-    private mkConfig(path: string, data: any) {
+    mkConfig(path: string, memberMap: {[key: string]: string | string[]}) {
+        const data ={
+            id: memberMap.id,
+            title: memberMap.title,
+            category: memberMap.category,
+            updated: memberMap.updated
+        };
+        
         const json = JSON.stringify(data, null, '    ');
         fs.writeFile(path + '\\config.json', json, err => {
             if (err !== null){

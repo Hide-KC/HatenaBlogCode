@@ -1,5 +1,6 @@
 {
-	"name": "hatena_blog_code",
+	"name": "hatenablogcode",
+	"publisher": "kcpoipoi",
 	"displayName": "HatenaBlogCode",
 	"description": "This extension supports the operation of HatenaBlog.",
 	"version": "0.0.1",
@@ -108,5 +109,9 @@
 		"@types/request-promise": "^4.1.42",
 		"request-promise": "^4.2.2",
 		"xml-js": "^1.6.9"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Hide-KC/HatenaBlogCode.git"
 	}
 }

@@ -27,6 +27,7 @@ export default class Converter{
             `<title>${config.title}</title>` +
             `<author><name>${id}</name></author>` +
             `<content type="text/x-markdown">${content}</content>` +
+            `<updated>${config.updated}</updated>` +
             this.createCategoryTerms(config) +
             '<app:control>' +
             `<app:draft>${useDraft}</app:draft>` + 
@@ -36,8 +37,8 @@ export default class Converter{
         return data;
     }
 
-    decodeMember(memberXml: string): {[key: string]: string | string[]} {
-        const articleId = () => {
+    getMemberMap(memberXml: string): {[key: string]: string | string[]} {
+        const id = () => {
             const _id = memberXml.match('<link rel=\"edit\" href=\".*/entry/(.*)\"/>');
             return _id? _id[1] : "";
         };
@@ -55,25 +56,31 @@ export default class Converter{
 
         const category = () => {
             const regExp = new RegExp('category term=\".*\"', "g");
-            const _categoryArray = memberXml.match(regExp);
-            const categoryArr: string[] = [];
+            const _memberMap = memberXml.match(regExp);
+            const memberMap: string[] = [];
             
-            if (_categoryArray !== null) {
-                _categoryArray.forEach((value, index, array) => {
+            if (_memberMap !== null) {
+                _memberMap.forEach((value, index, array) => {
                     const _category = value.match('category term=\"(.*)\"');
                     if (_category !== null){
-                        categoryArr.push(_category[1]);
+                        memberMap.push(_category[1]);
                     }
                 });
             }
 
-            return categoryArr;
+            return memberMap;
+        };
+
+        const updated = (): string => {
+            const _updated = memberXml.match('<updated>(.*)</updated>');
+            return _updated? _updated[1] : "";
         };
 
         const memberMap: {[key:string]: string | string[]} = {
-            articleId: articleId(),
+            id: id(),
             title: title(),
             content: content(),
+            updated: updated(),
             category: category()
         };
 
