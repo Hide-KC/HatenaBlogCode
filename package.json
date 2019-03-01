@@ -1,5 +1,5 @@
 {
-	"name": "hatenablogcode",
+	"name": "hatenablog-code",
 	"publisher": "kcpoipoi",
 	"displayName": "HatenaBlogCode",
 	"description": "This extension supports the operation of HatenaBlog.",
@@ -97,8 +97,6 @@
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^8.10.25",
-		"oauth": "^0.9.15",
-		"request": "^2.88.0",
 		"tslint": "^5.8.0",
 		"typescript": "^3.1.4",
 		"vscode": "^1.1.25"
@@ -107,8 +105,9 @@
 		"@types/oauth": "^0.9.1",
 		"@types/request": "^2.48.1",
 		"@types/request-promise": "^4.1.42",
-		"request-promise": "^4.2.2",
-		"xml-js": "^1.6.9"
+		"oauth": "^0.9.15",
+		"request": "^2.88.0",
+		"request-promise": "^4.2.2"
 	},
 	"repository": {
 		"type": "git",
