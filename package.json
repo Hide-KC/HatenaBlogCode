@@ -84,8 +84,14 @@
 					"type": "object",
 					"description": "Don't edit this value."
 				}
-			}
-		}
+      }
+    },
+    "snippets" :[
+      {
+        "language": "markdown",
+        "path": "./snippets/snippets.json"
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

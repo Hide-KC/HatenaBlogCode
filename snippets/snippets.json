@@ -1,0 +1,58 @@
+{
+    "content": {
+        "prefix": "content",
+        "body": [
+            "[:contents]"
+        ],
+        "description": "見出しリストを作るときに使う"
+    },
+    "injection": {
+        "prefix": "injection",
+        "body": [
+            "((${1}))${}"
+        ],
+        "description": "注釈を作るときに使う"
+    },
+    "more": {
+        "prefix": "more",
+        "body": [
+            "<!-- more -->"
+        ],
+        "description": "続きを読むを作るときに使う"
+    },
+    "wiki": {
+        "prefix": "wiki",
+        "body": [
+            "[wikipedia:${1}]"
+        ],
+        "description": "Wikipedia へのリンクを作るときに使う"
+    },
+    "google": {
+        "prefix": "google",
+        "body": [
+            "[google:${1}]"
+        ],
+        "description": "Google への検索結果を作るときに使う"
+    },
+    "embed": {
+        "prefix": "embed",
+        "body": [
+            "[${1}:embed:cite]"
+        ],
+        "description": "プレビュー付きのリンクを作るときに使う"
+    },
+    "title": {
+        "prefix": "title",
+        "body": [
+            "[${1}:title]"
+        ],
+        "description": "タイトルだけ表示されるリンクを作りたいときに使う"
+    },
+    "Image": {
+        "prefix": "Image",
+        "body": [
+            "[${1}:image=${2}]"
+        ],
+        "description": "画像を張り付けたいときに使う"
+    }
+}

@@ -2,7 +2,6 @@ import * as api from './APIValues';
 import * as OAuth from 'oauth';
 import * as vscode from 'vscode';
 import * as rp from 'request-promise';
-import { isString } from 'util';
 
 export default class Authorizer{
   private static instance: Authorizer;
@@ -49,7 +48,7 @@ export default class Authorizer{
   /**
    * Start OAuth v1.0
    */
-  async startOAuth() {
+  startOAuth() {
     if (this.existAccessToken()) {
       console.log(this.accessToken);
       return;
@@ -57,44 +56,55 @@ export default class Authorizer{
       throw new Error('Please confirm UserPreferences.');
     }
 
-    this.oauth.getOAuthRequestToken({
+    const getOAuthRequestToken = (scope: {[key: string]: string}) => 
+    new Promise((resolve) =>
+    this.oauth.getOAuthRequestToken(scope, (err, requestToken, requestTokenSecret, query) => {
+      resolve({err, requestToken, requestTokenSecret, query});
+    }));
+
+    const getOAuthAccessToken = (requestToken: string, requestTokenSecret: string, verifier: string) => 
+    new Promise((resolve) => 
+    this.oauth.getOAuthAccessToken(requestToken, requestTokenSecret, verifier, (err, accessToken, accessTokenSecret, query) => {
+      resolve({err, accessToken, accessTokenSecret, query});
+    }));
+
+    let requestTokenResult: {err: {statusCode: number, data?: any}, requestToken: string, requestTokenSecret: string, query: any};
+    
+    getOAuthRequestToken({
       'scope': 'read_public,write_public,read_private,write_private'
-    }, async (err, request_token, request_token_secret, results) => {
-      if (err !== null){
-        console.log(err);
-      } else {
-        console.log('redirectUrl: ' + api.RES_OWNER_AUTH_URL + '?oauth_token=' + request_token);
+    }).then(result => {
+      requestTokenResult = result as {err: {statusCode: number, data?: any}, requestToken: string, requestTokenSecret: string, query: any};
+      console.log(requestTokenResult);
+      return;
+    }).then(async () => {
+      const rk = await this.getRK();
+      if (!rk) {throw new Error('getRK Error');}
+      return this.getRKM(requestTokenResult.requestToken, rk);
+    }).then(rkm => {
+      if (!rkm) {console.log(rkm); throw new Error('getRKM Error');}
+      console.log(rkm);
+      return this.getVerifier(requestTokenResult.requestToken, rkm.rk, rkm.rkm);
+    }).then(verifier => {
+      if (!verifier) {throw new Error('getVerifier Error');}
+      return getOAuthAccessToken(requestTokenResult.requestToken, requestTokenResult.requestTokenSecret, verifier);
+    }).then(result => {
+      const accessTokenResult = result as {err: {statusCode: number, data?: any}, accessToken: string, accessTokenSecret: string, query: any};
+      if (accessTokenResult.err !== null) {throw new Error('getOAuthAccessToken Error');}
 
-        this.getRK()
-        .then((rk) => {
-          return this.getRKM(request_token, rk as string);
-        })
-        .then((arr) => {
-          if (arr === null) {throw new Error();}
-          return this.getVerifier(request_token, arr.rk, arr.rkm);
-        })
-        .then((verifier) => {
-          if (!isString(verifier)) {throw new Error();}
-          this.oauth.getOAuthAccessToken(request_token, request_token_secret, verifier, (err, accessToken, accessTokenSecret, parsedQueryString) => {
-            if (err !== null){
-              console.log(err);
-            } else {
-              console.log(">>>Congraturations!!<<<");
-              console.log('AccessToken: ' + accessToken);
-              console.log('AccessTokenSecret: ' + accessTokenSecret);
-              this.accessToken.token = accessToken;
-              this.accessToken.secret = accessTokenSecret;
+      console.log(">>>Congraturations!!<<<");
+      console.log('AccessToken: ' + accessTokenResult.accessToken);
+      console.log('AccessTokenSecret: ' + accessTokenResult.accessTokenSecret);
+      
+      this.accessToken.token = accessTokenResult.accessToken;
+      this.accessToken.secret = accessTokenResult.accessTokenSecret;
 
-              const prefs = vscode.workspace.getConfiguration('UserPreferences');
-              prefs.update('token', accessToken, vscode.ConfigurationTarget.Global);
-              prefs.update('secret', accessTokenSecret, vscode.ConfigurationTarget.Global);
-            }
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      }
+      const prefs = vscode.workspace.getConfiguration('UserPreferences');
+      prefs.update('token', accessTokenResult.accessToken, vscode.ConfigurationTarget.Global);
+      prefs.update('secret', accessTokenResult.accessTokenSecret, vscode.ConfigurationTarget.Global);
+      vscode.window.showInformationMessage('HatenaBlog Authorize Complete!');
+    }).catch(reason => {
+      console.log(reason);
+      vscode.window.showErrorMessage(`Oops! Authorize failed!\nreason: ${reason}`);
     });
   }
 

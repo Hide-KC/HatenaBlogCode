@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  const disposables = [];
+  const disposables: vscode.Disposable[] = [];
 
   //テンプレートフォルダの生成
   const init = () => {
@@ -29,8 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
   disposables.push(vscode.commands.registerCommand('extension.init', init));
 
   //Start Authorize
-  const startOauth = async () => {
-    await Authorizer.getInstance().startOAuth();
+  const startOauth = () => {
+    Authorizer.getInstance().startOAuth();
   };
   disposables.push(vscode.commands.registerCommand('extension.startOAuth', startOauth));
 
@@ -40,35 +40,35 @@ export function activate(context: vscode.ExtensionContext) {
       placeHolder: "data-uuid"
     };
     
-    vscode.window.showInputBox(inputBoxOptions).then(async (value) => {
+    vscode.window.showInputBox(inputBoxOptions).then(value => {
       if (value !== undefined){
-        await hatena.getMember(value);
+        hatena.getMember(value);
       }
     });
   };
   disposables.push(vscode.commands.registerCommand('extension.getMember', getMember));
 
-  const getCategory = async () => {
-    await hatena.getCategory();
+  const getCategory = () => {
+    hatena.getCategory();
   };
   disposables.push(vscode.commands.registerCommand('extension.getCategory', getCategory));
 
-  const getServiceXml = async () => {
-    await hatena.getServiceXml();
+  const getServiceXml = () => {
+    hatena.getServiceXml();
   };
   disposables.push(vscode.commands.registerCommand('extension.getServiceXml', getServiceXml));
 
-  const getCollection = async () => {
-    await hatena.getCollection();
+  const getCollection = () => {
+    hatena.getCollection();
   };
   disposables.push(vscode.commands.registerCommand('extension.getCollection', getCollection));
 
-  const postMember = async () => {
-    await hatena.postMember();
+  const postMember = () => {
+    hatena.postMember();
   };
   disposables.push(vscode.commands.registerCommand('extension.postMember', postMember));
 
-  const putMember = async () => {
+  const putMember = () => {
     const converter = Converter.getInstance();
     const memberMap = converter.getMemberMap();
     
