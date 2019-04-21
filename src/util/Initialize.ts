@@ -13,7 +13,8 @@ export default class Initialize {
     id: "",
     title: 'Article Title',
     category: ['hoge', 'bar'],
-    updated: ""
+    updated: "",
+    draft: 'no'
   };
 
   createWorkingDirectory(memberMap?: {[key: string]: string | string[]}) {
@@ -32,9 +33,11 @@ export default class Initialize {
       placeHolder: "Article title etc..."
     };
     
-    vscode.window.showOpenDialog(folderOptions).then(folderUri => {
+    vscode.window.showOpenDialog(folderOptions)
+    .then(folderUri => {
       if (folderUri) {
-        vscode.window.showInputBox(inputBoxOptions).then(directoryName => {
+        vscode.window.showInputBox(inputBoxOptions)
+        .then(directoryName => {
           if (directoryName !== undefined){
             const root = folderUri[0].fsPath + `\\${directoryName}`;
             fs.mkdir(root, (err) => {
@@ -52,12 +55,7 @@ export default class Initialize {
                 const prefs = vscode.workspace.getConfiguration('UserPreferences');
                 if (memberMap !== undefined){
                   this.mkContent(root, memberMap.content);
-                  this.mkConfig(root, {
-                    id: memberMap.id,
-                    title: memberMap.title,
-                    category: memberMap.category,
-                    updated: memberMap.updated
-                  });
+                  this.mkConfig(root, memberMap);
                   prefs.update("memberMap", memberMap, vscode.ConfigurationTarget.Global);
                 } else {
                   this.mkContent(root, this.initContent);
@@ -74,7 +72,8 @@ export default class Initialize {
         }).then(root => {
           if (root !== undefined){
             console.log('Working directory: ' + root);
-            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.parse(root), false);
+            //フォルダを開いておく
+            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(root), false);
           }
         }, err => {
           console.log(err);
@@ -107,10 +106,11 @@ export default class Initialize {
       id: memberMap.id,
       title: memberMap.title,
       category: memberMap.category,
-      updated: memberMap.updated
+      updated: memberMap.updated,
+      draft: memberMap.draft
     };
     
-    const json = JSON.stringify(data, null, '    ');
+    const json = JSON.stringify(data, null, '  ');
     fs.writeFile(path + '\\config.json', json, err => {
       if (err !== null){
         console.log(err);

@@ -12,14 +12,13 @@ export default class Converter{
     return this.instance;
   }
 
-  createPostData(root: string, draft?: boolean) {
+  createPostData(root: string) {
     const prefs = vscode.workspace.getConfiguration('UserPreferences');
     const id = prefs.get<string | undefined>('id');
     const _content = fs.readFileSync(root + "\\content.md", {encoding: 'utf-8'});
     const content = this.escapeHtml(_content);
     const _config = fs.readFileSync(root + "\\config.json", {encoding: 'utf-8'});
     const config = JSON.parse(_config);
-    const useDraft = draft? 'yes' : 'no';
 
     const data =
       '<?xml version="1.0" encoding="utf-8"?>' +
@@ -31,7 +30,7 @@ export default class Converter{
       `<updated>${config.updated}</updated>` +
       this.createCategoryTerms(config) +
       '<app:control>' +
-      `<app:draft>${useDraft}</app:draft>` + 
+      `<app:draft>${config.draft}</app:draft>` + 
       '</app:control>' +
       '</entry>';
     
@@ -77,13 +76,19 @@ export default class Converter{
         const _updated = memberXml.match('<updated>(.*)</updated>');
         return _updated? _updated[1] : "";
       };
+
+      const draft = (): string => {
+        const _draft = memberXml.match('<app:draft>(/S)</app:draft>');
+        return _draft? _draft[1] : 'no';
+      };
   
       const memberMap: {[key:string]: string | string[]} = {
         id: id(),
         title: title(),
         content: content(),
         updated: updated(),
-        category: category()
+        category: category(),
+        draft: draft()
       };
   
       console.log(memberMap);
@@ -104,7 +109,8 @@ export default class Converter{
         title: config.title,
         content: "",
         updated: config.updated,
-        category: config.category
+        category: config.category,
+        draft: config.draft
       };
 
       console.log(memberMap);
